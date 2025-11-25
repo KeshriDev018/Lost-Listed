@@ -4,6 +4,7 @@ import lostitemSlice from "./lostitemSlice.ts"
 import founditemSlice from "./founditemSlice.ts"
 import productSlice from "./productSlice.ts"
 import activitySlice from "./activitySlice.ts"
+import notificationSlice from "./notificationSlice.ts"
 
 
 import {
@@ -29,7 +30,8 @@ const rootReducer = combineReducers({
   lostitem:lostitemSlice,
   founditem:founditemSlice,
   product:productSlice,
-  activity:activitySlice
+  activity:activitySlice,
+  notification: notificationSlice
   
 });
 

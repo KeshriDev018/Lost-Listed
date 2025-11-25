@@ -24,6 +24,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import NotificationBell from "./NotificationBell";
+import GlobalSearch from "./GlobalSearch";
 
 const Navbar = () => {
   const location = useLocation();
@@ -38,6 +40,9 @@ const Navbar = () => {
     const saved = localStorage.getItem("darkMode");
     return saved === "true" ? true : false;
   });
+
+  // --- Search dialog state ---
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -146,6 +151,21 @@ const Navbar = () => {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Global Search Button */}
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSearchOpen(true)}
+                title="Search"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            )}
+
+            {/* Notifications */}
+            {user && <NotificationBell />}
+
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}
@@ -291,6 +311,9 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      {/* Global Search Dialog */}
+      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </nav>
   );
 };

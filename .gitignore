@@ -26,3 +26,8 @@ Thumbs.db
 
 # Cache
 .cache/
+
+# Documentation files (auto-generated)
+MAJOR_FUNCTIONALITIES_ADDED.md
+NEW_FEATURES_GUIDE.md
+INTEGRATION_GUIDE.md

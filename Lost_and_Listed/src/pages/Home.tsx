@@ -789,7 +789,7 @@ const Home = () => {
           <div className="border-t border-gray-800 mt-10 pt-6 text-center text-sm text-gray-500">
             © {new Date().getFullYear()} Lost & Listed — Made with{" "}
             <span className="text-red-500">❤️</span> by{" "}
-            <span className="font-semibold">Ankit Keshri</span>
+            <span className="font-semibold">team CodeSpire</span>
           </div>
         </div>
 

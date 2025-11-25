@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import useFetchAllLostItems from "@/hooks/usefetchallLostItems";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -100,13 +101,45 @@ const LostItems = () => {
     }
   };
 
-  
+  const [savedItems, setSavedItems] = useState<string[]>([]);
 
+  const handleShare = async (item: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const itemUrl = `${window.location.origin}/lost/${item._id}`;
+    const shareData = {
+      title: item.title,
+      text: `Found this lost item: ${item.title}`,
+      url: itemUrl,
+    };
 
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast.success("Shared successfully!");
+      } else {
+        await navigator.clipboard.writeText(itemUrl);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (error: any) {
+      if (error.name !== "AbortError") {
+        toast.error("Failed to share");
+      }
+    }
+  };
 
-
-
-  
+  const handleSaveItem = (itemId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSavedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+    toast.success(
+      savedItems.includes(itemId) 
+        ? "Removed from saved items" 
+        : "Saved to your collection"
+    );
+  };
    
   // 🧾 Handle input change
   const handleChange = (
@@ -409,7 +442,7 @@ const lostItems = useSelector((store: any) => store.lostitem.lostItems);
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Card
-                  className="cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg h-[370px] flex flex-col relative"
+                  className="cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg h-[370px] flex flex-col relative group"
                   onClick={() => cardClickHandler(item._id)}
                 >
                   <Badge 
@@ -421,6 +454,33 @@ const lostItems = useSelector((store: any) => store.lostitem.lostItems);
                   >
                     {item.isFound ? "Found" : "Not Found"}
                   </Badge>
+                  
+                  {/* Action Buttons */}
+                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
+                      onClick={(e) => handleSaveItem(item._id, e)}
+                    >
+                      <Heart 
+                        className={`h-4 w-4 ${
+                          savedItems.includes(item._id) 
+                            ? "fill-red-500 text-red-500" 
+                            : "text-gray-600"
+                        }`} 
+                      />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
+                      onClick={(e) => handleShare(item, e)}
+                    >
+                      <Share2 className="h-4 w-4 text-gray-600" />
+                    </Button>
+                  </div>
+
                   <CardContent className="p-4 sm:p-6 flex flex-col h-full">
                     <img
                       src={item.image?.url || "/placeholder-lost.png"}
@@ -428,9 +488,14 @@ const lostItems = useSelector((store: any) => store.lostitem.lostItems);
                       className="w-full h-48 object-cover rounded-lg mb-4 transition-transform duration-300 hover:scale-105"
                     />
                     <div className="flex flex-col flex-grow">
-                      <h3 className="text-lg sm:text-xl font-semibold mb-1 transition-colors duration-300 hover:text-blue-600 truncate">
-                        {item.title}
-                      </h3>
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-lg sm:text-xl font-semibold transition-colors duration-300 hover:text-blue-600 truncate flex-1">
+                          {item.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                      </p>
                       <p
                         className="text-gray-600 dark:text-gray-400 mb-2 text-sm line-clamp-2 flex-grow"
                         title={item.description}
