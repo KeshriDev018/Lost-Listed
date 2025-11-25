@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
+import Footer from "@/components/Footer.tsx";
 
 
 import {
@@ -696,7 +697,9 @@ const Marketplace = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        
       )}
+        <Footer/>
     </div>
   );
 };

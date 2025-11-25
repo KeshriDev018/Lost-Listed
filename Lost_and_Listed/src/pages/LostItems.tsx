@@ -9,6 +9,7 @@ import useFetchAllLostItems from "@/hooks/usefetchallLostItems";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
+import Footer from "@/components/Footer.tsx";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import { setLostItems } from "@/redux/lostitemSlice.ts";
 import { useEffect } from "react";
 import { useFilterLostItems } from "@/hooks/useFilterLostItems.tsx";
 import useFetchAllFoundItems from "@/hooks/usefetchallFoundItems.tsx";
+
 
 
 
@@ -696,6 +698,7 @@ const lostItems = useSelector((store: any) => store.lostitem.lostItems);
           )}
         </DialogContent>
       </Dialog>
+      <Footer/>
     </div>
   );
 };

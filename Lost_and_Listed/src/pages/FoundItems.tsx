@@ -9,6 +9,7 @@ import useFetchAllFoundItems from "@/hooks/usefetchallFoundItems.tsx";
 import axios from "axios";
 import { MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import Footer from "@/components/Footer.tsx";
 
 
 import {
@@ -670,6 +671,7 @@ const FoundItems = () => {
           )}
         </DialogContent>
       </Dialog>
+        <Footer/>
     </div>
   );
 };
