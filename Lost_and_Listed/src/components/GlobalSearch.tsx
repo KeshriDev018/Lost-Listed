@@ -135,7 +135,7 @@ const GlobalSearch = ({ open, onOpenChange }: GlobalSearchProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 gap-0">
         <DialogHeader className="p-4 pb-0">
-          <div className="relative">
+          <div className="relative mt-6">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               ref={inputRef}
@@ -158,12 +158,12 @@ const GlobalSearch = ({ open, onOpenChange }: GlobalSearchProps) => {
         </DialogHeader>
 
         {/* Category Filters */}
-        <div className="flex gap-2 px-4 py-3 border-b overflow-x-auto">
+        <div className="flex mt-2 gap-2 px-4 py-3 border-b overflow-x-auto">
           {categories.map((cat) => (
             <Badge
               key={cat.value}
               variant={selectedCategory === cat.value ? "default" : "outline"}
-              className="cursor-pointer whitespace-nowrap"
+              className="cursor-pointer whitespace-nowrap text-md"
               onClick={() => setSelectedCategory(cat.value)}
             >
               {cat.label}
