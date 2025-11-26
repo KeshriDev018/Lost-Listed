@@ -7,7 +7,7 @@ export const getRecentActivities = async (req, res) => {
     const activities = await Activity.find()
       .sort({ createdAt: -1 }) 
       .limit(10)
-      .populate("user", "name email") 
+      .populate("user", "fullName email avatar") 
       .populate("item");
 
     return res.status(200).json({

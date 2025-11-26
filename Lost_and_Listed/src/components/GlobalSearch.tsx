@@ -40,10 +40,9 @@ const GlobalSearch = ({ open, onOpenChange }: GlobalSearchProps) => {
   const navigate = useNavigate();
 
   const categories = [
-    { value: "all", label: "All" },
-    { value: "lost", label: "Lost Items" },
-    { value: "found", label: "Found Items" },
-    { value: "product", label: "Marketplace" },
+    { value: "lost-item", label: "Lost Items" },
+    { value: "found-item", label: "Found Items" },
+    { value: "products", label: "Marketplace" },
   ];
 
   useEffect(() => {
@@ -70,24 +69,31 @@ const GlobalSearch = ({ open, onOpenChange }: GlobalSearchProps) => {
       setResults([]);
     }
   }, [query, selectedCategory]);
+  
 
   const performSearch = async () => {
     setLoading(true);
+
     try {
-      const response = await axios.get(`/api/v1/search/global`, {
-        params: { q: query, category: selectedCategory },
+      const response = await axios.get(`/api/v1/${selectedCategory}/filter`, {
+        params: {
+          title:query,
+        },
         withCredentials: true,
       });
 
-      if (response.data.success) {
-        setResults(response.data.data);
-      }
-    } catch (error: any) {
+     if (selectedCategory === "products") {
+       setResults(response.data.products);
+     } else {
+       setResults(response.data.data);
+     }
+    } catch (error) {
       console.error("Search failed:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   const saveRecentSearch = (searchQuery: string) => {
     const updated = [
@@ -172,10 +178,10 @@ const GlobalSearch = ({ open, onOpenChange }: GlobalSearchProps) => {
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
-            ) : query.length > 2 && results.length > 0 ? (
+            ) : query?.length > 2 && results?.length > 0 ? (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground mb-3">
-                  Found {results.length} results
+                  Found {results?.length} results
                 </p>
                 <AnimatePresence>
                   {results.map((result, index) => (
@@ -188,19 +194,26 @@ const GlobalSearch = ({ open, onOpenChange }: GlobalSearchProps) => {
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors"
                       onClick={() => handleResultClick(result)}
                     >
-                      {result.image && (
+                      {(result.image?.url || result.images?.[0]?.url) && (
                         <img
-                          src={result.image}
+                          src={result.image?.url || result.images?.[0]?.url}
                           alt={result.title}
                           className="w-12 h-12 object-cover rounded"
                         />
                       )}
+
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{result.title}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {result.type}
-                          </Badge>
+                          {selectedCategory == "products" ? (
+                            <Badge variant="outline" className="text-xs">
+                              ₹{result?.price}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">
+                              {result?.location}
+                            </Badge>
+                          )}
                           <span className="text-xs text-muted-foreground">
                             {result.category}
                           </span>

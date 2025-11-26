@@ -245,7 +245,7 @@ const FoundItems = () => {
         >
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-green-600">
-              Found Items
+              <strong> Found Items</strong>
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
               Report items found by you and help others find them.
@@ -406,8 +406,12 @@ const FoundItems = () => {
               <div className="inline-block p-8 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
                 <MapPin className="h-16 w-16 text-gray-400" />
               </div>
-              <h3 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">No Found Items Yet</h3>
-              <p className="text-gray-500 dark:text-gray-400">Be the first to report a found item!</p>
+              <h3 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                No Found Items Yet
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Be the first to report a found item!
+              </p>
             </div>
           ) : (
             foundItems?.map((item: any, index: number) => (
@@ -421,16 +425,16 @@ const FoundItems = () => {
                   className="cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg h-[370px] flex flex-col relative group"
                   onClick={() => cardClickHandler(item._id)}
                 >
-                  <Badge 
+                  <Badge
                     className={`absolute bottom-3 right-3 z-10 ${
-                      item.isClaimed 
-                        ? "bg-green-500 hover:bg-green-600 text-white" 
+                      item.isClaimed
+                        ? "bg-green-500 hover:bg-green-600 text-white"
                         : "bg-blue-500 hover:bg-blue-600 text-white"
                     }`}
                   >
                     {item.isClaimed ? "Claimed" : "Not Claimed"}
                   </Badge>
-                  
+
                   {/* Action Buttons */}
                   <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                     <Button
@@ -439,12 +443,12 @@ const FoundItems = () => {
                       className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
                       onClick={(e) => handleSaveItem(item._id, e)}
                     >
-                      <Heart 
+                      <Heart
                         className={`h-4 w-4 ${
-                          savedItems.includes(item._id) 
-                            ? "fill-red-500 text-red-500" 
+                          savedItems.includes(item._id)
+                            ? "fill-red-500 text-red-500"
                             : "text-gray-600"
-                        }`} 
+                        }`}
                       />
                     </Button>
                     <Button
@@ -470,18 +474,17 @@ const FoundItems = () => {
                         </h3>
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(item.createdAt), {
+                          addSuffix: true,
+                        })}
                       </p>
-                      <p className="text-gray-600 dark:text-gray-400 mb-2 text-sm overflow-hidden text-ellipsis line-clamp-2">
+                      {/* <p className="text-gray-600 dark:text-gray-400 mb-2 text-sm overflow-hidden text-ellipsis line-clamp-2">
                         {item.description}
+                      </p> */}
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-3">
+                        <strong>📌 Found at:</strong>{" "}
+                        {item.location || "Not specified"}
                       </p>
-                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mt-auto">
-                        <MapPin size={16} className="text-blue-500" />
-                        <span className="truncate">
-                          <strong>Found at: </strong>
-                          {item.location}
-                        </span>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -671,7 +674,7 @@ const FoundItems = () => {
           )}
         </DialogContent>
       </Dialog>
-        <Footer/>
+      <Footer />
     </div>
   );
 };

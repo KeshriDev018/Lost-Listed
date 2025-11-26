@@ -253,10 +253,11 @@ const Marketplace = () => {
         >
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-blue-600">
-              Marketplace
+              <strong>Marketplace</strong>
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Buy and sell second-hand items within your college community.
+              A campus marketplace to trade all your unused or pre-loved items
+              safely and affordably.
             </p>
           </div>
           <Button
@@ -405,8 +406,12 @@ const Marketplace = () => {
             <div className="inline-block p-8 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
               <span className="text-6xl">🛒</span>
             </div>
-            <h3 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">No Products Available</h3>
-            <p className="text-gray-500 dark:text-gray-400">Be the first to list an item for sale!</p>
+            <h3 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              No Products Available
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400">
+              Be the first to list an item for sale!
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -421,16 +426,16 @@ const Marketplace = () => {
                   className="cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg h-[380px] flex flex-col relative group"
                   onClick={() => handleCardClick(item._id)}
                 >
-                  <Badge 
+                  <Badge
                     className={`absolute bottom-3 right-3 z-10 ${
-                      item.isSold 
-                        ? "bg-red-500 hover:bg-red-600 text-white" 
+                      item.isSold
+                        ? "bg-red-500 hover:bg-red-600 text-white"
                         : "bg-green-500 hover:bg-green-600 text-white"
                     }`}
                   >
                     {item.isSold ? "Sold" : "Available"}
                   </Badge>
-                  
+
                   {/* Action Buttons */}
                   <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                     <Button
@@ -439,12 +444,12 @@ const Marketplace = () => {
                       className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
                       onClick={(e) => handleSaveItem(item._id, e)}
                     >
-                      <Heart 
+                      <Heart
                         className={`h-4 w-4 ${
-                          savedItems.includes(item._id) 
-                            ? "fill-red-500 text-red-500" 
+                          savedItems.includes(item._id)
+                            ? "fill-red-500 text-red-500"
                             : "text-gray-600"
-                        }`} 
+                        }`}
                       />
                     </Button>
                     <Button
@@ -470,17 +475,19 @@ const Marketplace = () => {
                         </h3>
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(item.createdAt), {
+                          addSuffix: true,
+                        })}
                       </p>
-                      <p
+                      {/* <p
                         className="text-gray-600 dark:text-gray-400 mb-2 text-sm line-clamp-2"
                         title={item.description}
                       >
                         {item.description}
-                      </p>
+                      </p> */}
                     </div>
 
-                    <p className="text-blue-600 font-semibold transition-colors duration-300 hover:text-blue-700">
+                    <p className="text-blue-600 text-xl font-semibold transition-colors duration-300 hover:text-blue-700">
                       ₹{item.price}
                     </p>
                   </CardContent>
@@ -697,9 +704,8 @@ const Marketplace = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        
       )}
-        <Footer/>
+      <Footer />
     </div>
   );
 };

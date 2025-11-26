@@ -152,7 +152,7 @@ const Navbar = () => {
           {/* Right side */}
           <div className="flex items-center gap-3">
             {/* Global Search Button */}
-            {user && (
+            {(
               <Button
                 variant="ghost"
                 size="icon"

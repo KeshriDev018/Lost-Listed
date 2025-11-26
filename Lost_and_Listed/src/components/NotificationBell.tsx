@@ -15,7 +15,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const NotificationBell = () => {
   const dispatch = useDispatch();
-  const { notifications, unreadCount } = useSelector((store: any) => store.notification);
+  const { notifications, unreadCount } = useSelector(
+    (store: any) => store.activity.activities
+  );
+
+  
 
   const handleMarkAsRead = (id: string) => {
     dispatch(markAsRead(id));
@@ -81,7 +85,7 @@ const NotificationBell = () => {
             )}
           </div>
           <div className="flex gap-1">
-            {notifications.length > 0 && (
+            {notifications?.length > 0 && (
               <>
                 <Button
                   variant="ghost"
@@ -108,14 +112,14 @@ const NotificationBell = () => {
 
         {/* Notification List */}
         <ScrollArea className="h-96">
-          {notifications.length === 0 ? (
+          {notifications?.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Bell className="h-12 w-12 mb-2 opacity-20" />
               <p className="text-sm">No notifications yet</p>
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map((notification: any) => (
+              {notifications?.map((notification: any) => (
                 <motion.div
                   key={notification._id}
                   initial={{ opacity: 0, y: -10 }}
@@ -128,11 +132,11 @@ const NotificationBell = () => {
                   <div className="flex gap-3">
                     {/* Icon or Avatar */}
                     <div className="flex-shrink-0 mt-1">
-                      {notification.fromUser ? (
+                      {notification.user ? (
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={notification.fromUser.avatar} />
+                          <AvatarImage src={notification.user.avatar} />
                           <AvatarFallback>
-                            {notification.fromUser.fullName.charAt(0)}
+                            {notification.user.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       ) : (
@@ -146,7 +150,7 @@ const NotificationBell = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-medium text-sm truncate">
-                          {notification.title}
+                          {notification.activityType}
                         </p>
                         {!notification.read && (
                           <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1" />

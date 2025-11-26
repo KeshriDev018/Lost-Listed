@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Notification {
   _id: string;
-  type: "claim" | "message" | "match" | "system";
+  type: "LOST_REPORTED" | "FOUND_REPORTED" | "ITEM_CLAIMED" | "ITEM_RETURNED";
   title: string;
   message: string;
   itemId?: string;
