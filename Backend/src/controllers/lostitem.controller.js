@@ -45,7 +45,6 @@ export const createLostItem = async (req, res) => {
       message: `${req.user.fullName} reported a lost item: ${lostItem.title}`,
     });
 
-
     return res.status(201).json({
       message: "Lost item created successfully",
       data: lostItem,
@@ -59,7 +58,6 @@ export const createLostItem = async (req, res) => {
     });
   }
 };
-
 
 export const getAllLostItems = async (req, res) => {
   try {
@@ -81,7 +79,6 @@ export const getAllLostItems = async (req, res) => {
     });
   }
 };
-
 
 export const getLostItemById = async (req, res) => {
   try {
@@ -112,7 +109,6 @@ export const getLostItemById = async (req, res) => {
   }
 };
 
-
 export const getUserLostItems = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -134,8 +130,6 @@ export const getUserLostItems = async (req, res) => {
     });
   }
 };
-
-
 
 export const updateLostItem = async (req, res) => {
   try {
@@ -166,7 +160,7 @@ export const updateLostItem = async (req, res) => {
     const updatedItem = await LostItem.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { new: true }
+      { new: true },
     ).populate("user", "username fullName avatar");
 
     if (!updatedItem) {
@@ -190,85 +184,67 @@ export const updateLostItem = async (req, res) => {
   }
 };
 
-
-
-
 export const markItemFound = async (req, res) => {
   try {
-
     const { id } = req.params;
     const finderId = req.user._id; // user who marks it found
 
-    
-
     // Fetch the lost item and populate the original owner's info
-    const item = await LostItem.findById(id).populate("user", "email fullName avatar username phone");
-
+    const item = await LostItem.findById(id).populate(
+      "user",
+      "email fullName avatar username phone",
+    );
     if (!item) return res.status(404).json({ message: "Item not found" });
-
     if (item.user._id.toString() === finderId.toString()) {
       return res.status(403).json({
         success: false,
         message: "You cannot mark your own lost item as found.",
       });
     }
-
     if (item.isFound) {
       return res.status(400).json({
         message: "Item is already marked as found",
         data: item,
       });
     }
-    
-
     // Mark as found and save who found it
     item.isFound = true;
     item.foundBy = finderId;
     await item.save();
 
-    // Fetch the user who found the item
-    const finder = await User.findById(finderId).select(
-      "username fullName email phone"
-    );
-
-    // Send email to the original owner including finder info
-    const ownerEmail = item.user.email;
-    const subject = "Your lost item has been found!";
-    const text = `Hello ${item.user.fullName},
-
-Your lost item "${item.title}" has been found by someone.
-
-Finder's information:
-- Full Name: ${finder.fullName}
-- Username: ${finder.username}
-- Email: ${finder.email}
-- Phone: ${finder.phone}
-
-Please contact them to retrieve your item.`;
-
-    await sendEmail({ to: ownerEmail, subject, text });
-
-    await Activity.create({
-      user: req.user._id,
-      item: item._id,
-      itemType: "FoundItem",
-      activityType: "FOUND_REPORTED",
-      message: `${req.user.fullName} found an item: ${item.title}`,
-    });
-
-
-    return res.status(200).json({
-      success:true,
-      message: "Item marked as found and owner notified with finder info",
+    // Respond immediately for better performance
+    res.status(200).json({
+      success: true,
+      message: "Item marked as found and owner will be notified.",
       data: item,
     });
+
+    // Do the rest in the background (not awaited)
+    (async () => {
+      try {
+        const finder = await User.findById(finderId).select(
+          "username fullName email phone",
+        );
+        const ownerEmail = item.user.email;
+        const subject = "Your lost item has been found!";
+        const text = `Hello ${item.user.fullName},\n\nYour lost item \"${item.title}\" has been found by someone.\n\nFinder's information:\n- Full Name: ${finder.fullName}\n- Username: ${finder.username}\n- Email: ${finder.email}\n- Phone: ${finder.phone}\n\nPlease contact them to retrieve your item.`;
+        await sendEmail({ to: ownerEmail, subject, text });
+        await Activity.create({
+          user: req.user._id,
+          item: item._id,
+          itemType: "FoundItem",
+          activityType: "FOUND_REPORTED",
+          message: `${req.user.fullName} found an item: ${item.title}`,
+        });
+      } catch (err) {
+        console.error("Background task error in markItemFound:", err);
+      }
+    })();
   } catch (error) {
     console.error("Error marking item as found:", error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
-
-
 
 export const unmarkItemFound = async (req, res) => {
   try {
@@ -277,23 +253,19 @@ export const unmarkItemFound = async (req, res) => {
 
     if (!item) return res.status(404).json({ message: "Item not found" });
 
-
     if (item.foundBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         message: "You are forbidden to perform this action",
         success: false,
       });
     }
-    
+
     if (!item.isFound) {
       return res.status(400).json({
         message: "Item is already unmarked as found",
         data: item,
       });
     }
-
-    
-
 
     item.isFound = false;
     item.foundBy = null;
@@ -345,8 +317,6 @@ export const deleteLostItem = async (req, res) => {
     });
   }
 };
-
-
 
 export const filterLostItems = async (req, res) => {
   try {
@@ -410,43 +380,38 @@ export const getRecentLostItems = async (req, res) => {
   }
 };
 
-export const getUserFoundByItems = async(req,res)=>{
+export const getUserFoundByItems = async (req, res) => {
   try {
     const userId = req.user?._id;
-    if(!userId){
+    if (!userId) {
       return res.status(401).json({
-        message:"user not authenticated",
-        success:false
-      })
+        message: "user not authenticated",
+        success: false,
+      });
     }
-  
+
     const items = await LostItem.find({ foundBy: userId })
       .populate("user", "username fullName email phone")
       .populate("foundBy", "fullName email phone")
       .sort({ createdAt: -1 });
-  
 
-      if (!items || items.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "No items found that were marked by you as found",
-        });
-      }
-      
-      return res.status(200).json({
-        message:"Items foundBy you fetched successfully",
-        data:items,
-        success:true
-      })
+    if (!items || items.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No items found that were marked by you as found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Items foundBy you fetched successfully",
+      data: items,
+      success: true,
+    });
   } catch (error) {
     console.error("Error fetching items foundBy you:", error);
     return res.status(500).json({
-      message:"Internal server error",
-      success:false
-    })
-    
+      message: "Internal server error",
+      success: false,
+    });
   }
-
-
-}
-
+};

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setuserLostItems } from "@/redux/lostitemSlice";
 
@@ -10,7 +10,7 @@ const useGetallUserLostItems = () => {
 
   const fetchItems = async () => {
     try {
-      const res = await axios.get("/api/v1/lost-item/user", {
+      const res = await api.get("/lost-item/user", {
         withCredentials: true,
       });
 

@@ -160,7 +160,7 @@ export const updateFoundItem = async (req, res) => {
     const updatedItem = await FoundItem.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { new: true }
+      { new: true },
     ).populate("user", "username fullName avatar");
 
     if (!updatedItem) {
@@ -192,7 +192,7 @@ export const markItemClaimed = async (req, res) => {
     // Fetch the found item and populate the original owner's info
     const item = await FoundItem.findById(id).populate(
       "user",
-      "email username fullName avatar phone"
+      "email username fullName avatar phone",
     );
 
     if (!item) return res.status(404).json({ message: "Item not found" });
@@ -215,41 +215,34 @@ export const markItemClaimed = async (req, res) => {
     item.claimedBy = claimerId;
     await item.save();
 
-    // Fetch the user who claimed the item
-    const claimer = await User.findById(claimerId).select(
-      "username fullName email phone"
-    );
-
-    // Send email to the founder including claimer info
-    const ownerEmail = item.user.email;
-    const subject = "Your found item has been claimed!";
-    const text = `Hello ${item.user.fullName},
-
-Your found item "${item.title}" has been claimed by someone.
-
-Clamier's information:
-- Full Name: ${claimer.fullName}
-- Username: ${claimer.username}
-- Email: ${claimer.email}
-- Phone: ${claimer.phone}
-
-Please contact them to return their item.`;
-
-    await sendEmail({ to: ownerEmail, subject, text });
-
-    await Activity.create({
-      user: req.user._id,
-      item: item._id,
-      itemType: "FoundItem",
-      activityType: "ITEM_CLAIMED",
-      message: `${req.user.fullName} claimed an item: ${item.title}`,
-    });
-
-    return res.status(200).json({
+    // Respond immediately for better performance
+    res.status(200).json({
       success: true,
-      message: "Item marked as claimed and founder notified with claimer info",
+      message: "Item marked as claimed. Founder will be notified.",
       data: item,
     });
+
+    // Do the rest in the background (not awaited)
+    (async () => {
+      try {
+        const claimer = await User.findById(claimerId).select(
+          "username fullName email phone",
+        );
+        const ownerEmail = item.user.email;
+        const subject = "Your found item has been claimed!";
+        const text = `Hello ${item.user.fullName},\n\nYour found item \"${item.title}\" has been claimed by someone.\n\nClaimer's information:\n- Full Name: ${claimer.fullName}\n- Username: ${claimer.username}\n- Email: ${claimer.email}\n- Phone: ${claimer.phone}\n\nPlease contact them to return their item.`;
+        await sendEmail({ to: ownerEmail, subject, text });
+        await Activity.create({
+          user: req.user._id,
+          item: item._id,
+          itemType: "FoundItem",
+          activityType: "ITEM_CLAIMED",
+          message: `${req.user.fullName} claimed an item: ${item.title}`,
+        });
+      } catch (err) {
+        console.error("Background task error in markItemClaimed:", err);
+      }
+    })();
   } catch (error) {
     console.error("Error marking item as claimed:", error);
     return res.status(500).json({ message: "Something went wrong" });

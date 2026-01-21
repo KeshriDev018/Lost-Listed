@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import MatchCard from "@/components/MatchCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Loader2 } from "lucide-react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -35,10 +35,10 @@ const Matches = () => {
     try {
       const endpoint =
         activeTab === "my-matches"
-          ? "/api/v1/matches/my-matches"
-          : "/api/v1/matches/all";
+          ? "/matches/my-matches"
+          : "/matches/all";
 
-      const response = await axios.get(endpoint, { withCredentials: true });
+      const response = await api.get(endpoint);
 
       if (response.data.success) {
         if (activeTab === "my-matches") {

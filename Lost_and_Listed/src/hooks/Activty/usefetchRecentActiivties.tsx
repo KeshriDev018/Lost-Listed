@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setactivities } from "@/redux/activitySlice";
 
@@ -12,7 +12,7 @@ const usefetchRecentActiivties = () => {
   const refetchRecentActiivties = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/v1/activity/recentactivity");
+      const res = await api.get("/activity/recentactivity");
 
 
       if (res.data.success) {

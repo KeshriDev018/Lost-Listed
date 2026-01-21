@@ -13,7 +13,7 @@ import Marketplace from "./pages/Marketplace";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
-import ForgotPassword from "./auth/ForgotPassword";
+import ForgotPassword from "./auth/forgotpassword.tsx";
 
 const queryClient = new QueryClient();
 

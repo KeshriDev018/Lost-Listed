@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setuserMarkedfoundItems } from "@/redux/authSlice";
 
@@ -13,7 +13,7 @@ const usefetchUserMarkedItems = () => {
     dispatch(setuserMarkedfoundItems([]));
     try {
       setLoading(true);
-      const res = await axios.get("/api/v1/lost-item/foundByuser", {
+      const res = await api.get("/lost-item/foundByuser", {
         withCredentials: true,
       });
 

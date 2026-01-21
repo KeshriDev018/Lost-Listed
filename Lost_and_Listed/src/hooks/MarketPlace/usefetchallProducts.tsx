@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setproducts } from "@/redux/productSlice";
 
@@ -14,9 +14,7 @@ const useFetchAllProducts = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get("/api/v1/products/get",{
-        withCredentials: true,
-      });
+      const res = await api.get("/products/get");
 
       if (res.data.success) {
         dispatch(setproducts(res.data.products));

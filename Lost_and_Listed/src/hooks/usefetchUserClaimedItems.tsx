@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setuserClaimedItems } from "@/redux/authSlice";
 
@@ -14,9 +14,7 @@ const usefetchUserClaimedItems = () => {
 
     try {
       setLoading(true);
-      const res = await axios.get("/api/v1/found-item/claimedByuser", {
-        withCredentials: true,
-      });
+      const res = await api.get("/found-item/claimedByuser");
 
       if (res.data.success) {
         dispatch(setuserClaimedItems(res.data.data));

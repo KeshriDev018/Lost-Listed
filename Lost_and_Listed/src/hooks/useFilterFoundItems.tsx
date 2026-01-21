@@ -1,10 +1,8 @@
-import axios from "axios";
+import { api } from "@/config/api";
 
 export const useFilterFoundItems = () => {
   const filterItems = async (queryString: string) => {
-    const res = await axios.get(`/api/v1/found-item/filter?${queryString}`, {
-      withCredentials: true,
-    });
+    const res = await api.get(`/found-item/filter?${queryString}`);
     return res; // only return actual items
   };
 

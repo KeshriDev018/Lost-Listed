@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Heart, Share2 } from "lucide-react";
+import {
+  Plus,
+  Heart,
+  Share2,
+  Search,
+  Filter,
+  X,
+  MapPin,
+  Calendar,
+  Tag,
+  Clock,
+  ShoppingBag,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import axios from "axios";
+import { api } from "@/config/api";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import Footer from "@/components/Footer.tsx";
-
 
 import {
   Dialog,
@@ -21,8 +33,6 @@ import {
   DialogClose,
 } from "@/components/ui/dialog.tsx";
 
-
-
 import useFetchAllProducts from "@/hooks/MarketPlace/usefetchallProducts";
 import { useDispatch, useSelector } from "react-redux";
 import { setproducts } from "@/redux/productSlice";
@@ -31,6 +41,8 @@ const Marketplace = () => {
   const { refetchProducts } = useFetchAllProducts();
   const items = useSelector((store: any) => store.product.products);
   const dispatch = useDispatch();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const Spinner = () => (
     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -48,7 +60,7 @@ const Marketplace = () => {
     images: [],
   });
 
-  const handleFormChange = (e:any) => {
+  const handleFormChange = (e: any) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -71,7 +83,7 @@ const Marketplace = () => {
         }
       }
 
-      const res = await axios.post("/api/v1/products/create", formData, {
+      const res = await api.post("/products/create", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
@@ -102,8 +114,8 @@ const Marketplace = () => {
     price: "",
     condition: "",
     images: [],
-    seller:null,
-    isSold:false
+    seller: null,
+    isSold: false,
   });
 
   const [savedItems, setSavedItems] = useState<string[]>([]);
@@ -134,29 +146,27 @@ const Marketplace = () => {
 
   const handleSaveItem = (itemId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
+    setSavedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId],
     );
     toast.success(
-      savedItems.includes(itemId) 
-        ? "Removed from saved items" 
-        : "Saved to your collection"
+      savedItems.includes(itemId)
+        ? "Removed from saved items"
+        : "Saved to your collection",
     );
   };
 
   const handleCardClick = async (id: any) => {
     try {
       setshowCardDetails(true); //for dialogue box opening wha se hi close hoga
-      const res = await axios.get(`/api/v1/products/${id}`);
+      const res = await api.get(`/products/${id}`);
       setSelectedItem(res.data.product);
     } catch (err) {
       console.error("Failed to fetch item details:", err);
     }
   };
-
-
 
   //for showing multiple images in details card
 
@@ -165,7 +175,7 @@ const Marketplace = () => {
   const handleNextImage = () => {
     if (selectedItem?.images?.length > 0) {
       setCurrentImageIndex((prev) =>
-        prev === selectedItem.images.length - 1 ? 0 : prev + 1
+        prev === selectedItem.images.length - 1 ? 0 : prev + 1,
       );
     }
   };
@@ -173,7 +183,7 @@ const Marketplace = () => {
   const handlePrevImage = () => {
     if (selectedItem?.images?.length > 0) {
       setCurrentImageIndex((prev) =>
-        prev === 0 ? selectedItem.images.length - 1 : prev - 1
+        prev === 0 ? selectedItem.images.length - 1 : prev - 1,
       );
     }
   };
@@ -181,11 +191,6 @@ const Marketplace = () => {
   useEffect(() => {
     if (showCardDetails) setCurrentImageIndex(0);
   }, [showCardDetails]);
-
-
-
-
-
 
   //Filters section
   const [filters, setFilters] = useState({
@@ -209,12 +214,9 @@ const Marketplace = () => {
         if (filters[key]) query.append(key, filters[key]);
       });
 
-      const res = await axios.get(
-        `/api/v1/products/filter?${query.toString()}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await api.get(`/products/filter?${query.toString()}`, {
+        withCredentials: true,
+      });
 
       dispatch(setproducts(res.data.products));
     } catch (error) {
@@ -233,164 +235,261 @@ const Marketplace = () => {
   };
   const [showFilters, setShowFilters] = useState(false);
 
+  // Pagination calculations
+  const totalPages = Math.ceil((items?.length || 0) / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = items?.slice(startIndex, endIndex) || [];
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [items]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
-    <div className="min-h-screen bg-background bg-blue-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div
-          className={`mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4
-              transition-all duration-700 ease-out transform
-              opacity-0 translate-y-4`}
-          ref={(el) => {
-            if (el)
-              setTimeout(
-                () => el.classList.remove("opacity-0", "translate-y-4"),
-                50
-              );
-          }}
-        >
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-blue-600">
-              <strong>Marketplace</strong>
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              A campus marketplace to trade all your unused or pre-loved items
-              safely and affordably.
-            </p>
-          </div>
-          <Button
-            onClick={() => setShowAddModal(true)}
-            className="gap-2 bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto transition-colors duration-300"
-          >
-            <Plus className="h-4 w-4" />
-            List an Item
-          </Button>
-        </div>
 
-        {/* Filters Section */}
-        <div className="mb-6">
-          {/* Toggle Button for All Screens */}
-          <div className="mb-4 flex justify-between items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className="  text-blue-700 border-blue-400 hover:bg-blue-500 hover:text-white dark:hover:bg-gray-800 transition-colors duration-300"
-              onClick={() => setShowFilters((prev) => !prev)}
-            >
-              {showFilters ? "Hide Filters" : "Show Filters"}
-            </Button>
-          </div>
-
-          {/* Filters Grid (collapsible on all screens) */}
+      {/* Professional Header Section */}
+      <div className="py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{
-              opacity: showFilters ? 1 : 0,
-              height: showFilters ? "auto" : 0,
-            }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <input
-              name="title"
-              placeholder="Search title"
-              value={filters.title}
-              onChange={handleFilterChange}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-300 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
+            <Card className="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border border-blue-100 dark:border-gray-700 shadow-2xl rounded-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 pointer-events-none" />
+              <CardContent className="relative p-8">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                  <div className="space-y-4 flex-1">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
+                        <ShoppingBag className="h-8 w-8 text-white" />
+                      </div>
+                      <div>
+                        <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                          Marketplace
+                        </h1>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
+                          <TrendingUp className="h-4 w-4 text-blue-500" />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl leading-relaxed">
+                      A campus marketplace to trade all your unused or pre-loved
+                      items safely and affordably
+                    </p>
 
-            <div className="relative">
-              <select
-                name="category"
-                value={filters.category}
-                onChange={handleFilterChange}
-                className="w-full border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white appearance-none pr-8 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              >
-                <option value="">All Categories</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Books">Books</option>
-                <option value="Furniture">Accessories</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Home">Home</option>
-                <option value="Other">Other</option>
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300">
-                ▼
-              </span>
-            </div>
+                    {/* Statistics */}
+                    <div className="flex flex-wrap gap-6 pt-2">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                          <ShoppingBag className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {items?.length || 0}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Total Products
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                          <Tag className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {items?.filter((item) => !item.isSold).length || 0}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Available
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="relative">
-              <select
-                name="condition"
-                value={filters.condition}
-                onChange={handleFilterChange}
-                className="w-full border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white appearance-none pr-8 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              >
-                <option value="">All Conditions</option>
-                <option value="new">New</option>
-                <option value="like_new">Like New</option>
-                <option value="very_good">Very Good</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="for_parts">For Parts</option>
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300">
-                ▼
-              </span>
-            </div>
-
-            <input
-              type="number"
-              name="priceMin"
-              placeholder="Min Price"
-              value={filters.priceMin}
-              onChange={handleFilterChange}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-300 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-
-            <input
-              type="number"
-              name="priceMax"
-              placeholder="Max Price"
-              value={filters.priceMax}
-              onChange={handleFilterChange}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-300 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </motion.div>
-
-          {/* Filter Buttons - hidden when filters collapsed */}
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{
-              opacity: showFilters ? 1 : 0,
-              height: showFilters ? "auto" : 0,
-            }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="flex flex-wrap gap-2 mt-4 overflow-hidden"
-          >
-            <Button
-              onClick={applyFilters}
-              className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto transition-colors duration-300"
-            >
-              Apply Filters
-            </Button>
-
-            <Button
-              onClick={resetFilters}
-              variant="secondary"
-              className="bg-blue-500 text-white hover:bg-blue-600 w-full sm:w-auto transition-colors duration-300"
-            >
-              Reset Filters
-            </Button>
+                  <Button
+                    onClick={() => setShowAddModal(true)}
+                    size="lg"
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg rounded-xl"
+                  >
+                    <Plus className="h-5 w-5" />
+                    List an Item
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
+      </div>
 
-        {/* Items Grid */}
+      {/* Professional Filters Section */}
+      <div className="pb-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card className="backdrop-blur-lg bg-white/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden">
+              <CardContent className="p-6">
+                {/* Filter Toggle Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                      <Filter className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      Filter Products
+                    </h3>
+                  </div>
+                  <Button
+                    onClick={() => setShowFilters((prev) => !prev)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    {showFilters ? (
+                      <>
+                        <X className="h-4 w-4 mr-2" /> Hide
+                      </>
+                    ) : (
+                      <>
+                        <Filter className="h-4 w-4 mr-2" /> Show
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Collapsible Filter Grid */}
+                <motion.div
+                  initial={false}
+                  animate={{
+                    height: showFilters ? "auto" : 0,
+                    opacity: showFilters ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                      {/* Search Input */}
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input
+                          name="title"
+                          placeholder="Search products..."
+                          value={filters.title}
+                          onChange={handleFilterChange}
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      {/* Category Select */}
+                      <div className="relative">
+                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
+                        <select
+                          name="category"
+                          value={filters.category}
+                          onChange={handleFilterChange}
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white appearance-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        >
+                          <option value="">All Categories</option>
+                          <option value="Electronics">Electronics</option>
+                          <option value="Books">Books</option>
+                          <option value="Accessories">Accessories</option>
+                          <option value="Clothing">Clothing</option>
+                          <option value="Home">Home</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      {/* Condition Select */}
+                      <div className="relative">
+                        <ShoppingBag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
+                        <select
+                          name="condition"
+                          value={filters.condition}
+                          onChange={handleFilterChange}
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white appearance-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        >
+                          <option value="">All Conditions</option>
+                          <option value="new">New</option>
+                          <option value="like_new">Like New</option>
+                          <option value="very_good">Very Good</option>
+                          <option value="good">Good</option>
+                          <option value="fair">Fair</option>
+                          <option value="for_parts">For Parts</option>
+                        </select>
+                      </div>
+
+                      {/* Min Price */}
+                      <input
+                        type="number"
+                        name="priceMin"
+                        placeholder="Min Price (₹)"
+                        value={filters.priceMin}
+                        onChange={handleFilterChange}
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+
+                      {/* Max Price */}
+                      <input
+                        type="number"
+                        name="priceMax"
+                        placeholder="Max Price (₹)"
+                        value={filters.priceMax}
+                        onChange={handleFilterChange}
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      <Button
+                        onClick={applyFilters}
+                        className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+                      >
+                        <Search className="h-4 w-4" />
+                        Apply Filters
+                      </Button>
+                      <Button
+                        onClick={resetFilters}
+                        variant="outline"
+                        className="gap-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      >
+                        <X className="h-4 w-4" />
+                        Reset
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Items Grid */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(itemsPerPage)].map((_, i) => (
               <Card key={i} className="h-[380px] animate-pulse">
                 <CardContent className="p-4 sm:p-6">
                   <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 rounded-lg mb-4"></div>
@@ -414,87 +513,185 @@ const Marketplace = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {items?.map((item: any, index: number) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentItems?.map((item: any, index: number) => (
               <motion.div
                 key={item._id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
               >
                 <Card
-                  className="cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg h-[380px] flex flex-col relative group"
+                  className="group cursor-pointer h-[400px] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-0 bg-white dark:bg-gray-800 shadow-lg"
                   onClick={() => handleCardClick(item._id)}
                 >
-                  <Badge
-                    className={`absolute bottom-3 right-3 z-10 ${
-                      item.isSold
-                        ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-green-500 hover:bg-green-600 text-white"
-                    }`}
-                  >
-                    {item.isSold ? "Sold" : "Available"}
-                  </Badge>
-
                   {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
+                      className="h-9 w-9 bg-white/95 hover:bg-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-600 dark:bg-gray-800/95 dark:hover:bg-gray-800"
                       onClick={(e) => handleSaveItem(item._id, e)}
                     >
                       <Heart
-                        className={`h-4 w-4 ${
+                        className={`h-4 w-4 transition-all ${
                           savedItems.includes(item._id)
-                            ? "fill-red-500 text-red-500"
-                            : "text-gray-600"
+                            ? "fill-red-500 text-red-500 scale-110"
+                            : "text-gray-600 dark:text-gray-300"
                         }`}
                       />
                     </Button>
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
+                      className="h-9 w-9 bg-white/95 hover:bg-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-600 dark:bg-gray-800/95 dark:hover:bg-gray-800"
                       onClick={(e) => handleShare(item, e)}
                     >
-                      <Share2 className="h-4 w-4 text-gray-600" />
+                      <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                     </Button>
                   </div>
 
-                  <CardContent className="p-4 sm:p-6 flex flex-col justify-between h-full">
-                    <div>
+                  <CardContent className="p-0 h-full flex flex-col">
+                    {/* Image Section */}
+                    <div className="relative h-52 overflow-hidden">
                       <img
                         src={item.images[0]?.url}
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded-lg mb-4 transition-transform duration-300 hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-lg sm:text-xl font-semibold transition-colors duration-300 hover:text-blue-600 truncate flex-1">
-                          {item.title}
-                        </h3>
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        {formatDistanceToNow(new Date(item.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                      {/* <p
-                        className="text-gray-600 dark:text-gray-400 mb-2 text-sm line-clamp-2"
-                        title={item.description}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                      {/* Status Badge */}
+                      <Badge
+                        className={`absolute top-3 left-3 z-20 font-semibold shadow-lg ${
+                          item.isSold
+                            ? "bg-gradient-to-r from-red-500 to-orange-500 text-white border-0"
+                            : "bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0"
+                        }`}
                       >
-                        {item.description}
-                      </p> */}
+                        {item.isSold ? "Sold" : "Available"}
+                      </Badge>
                     </div>
 
-                    <p className="text-blue-600 text-xl font-semibold transition-colors duration-300 hover:text-blue-700">
-                      ₹{item.price}
-                    </p>
+                    {/* Content Section */}
+                    <div className="flex-1 p-5 space-y-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {item.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            {formatDistanceToNow(new Date(item.createdAt), {
+                              addSuffix: true,
+                            })}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="secondary"
+                              className="gap-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 font-medium"
+                            >
+                              <Tag className="h-3 w-3" />
+                              {item.category}
+                            </Badge>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                              ₹{item.price}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {item.condition && (
+                        <Badge
+                          variant="outline"
+                          className="gap-1 text-xs text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600"
+                        >
+                          <ShoppingBag className="h-3 w-3" />
+                          {item.condition.replace("_", " ")}
+                        </Badge>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
           </div>
+        )}
+
+        {/* Professional Pagination */}
+        {items?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-12 flex justify-center items-center gap-4"
+          >
+            <Button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              variant="outline"
+              size="lg"
+              className="px-8 py-3 disabled:opacity-40 disabled:cursor-not-allowed border-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+            >
+              <svg
+                className="h-5 w-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Previous
+            </Button>
+
+            <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Page{" "}
+                <span className="text-blue-600 dark:text-blue-400 text-lg mx-1">
+                  {currentPage}
+                </span>{" "}
+                of{" "}
+                <span className="text-gray-900 dark:text-gray-100">
+                  {totalPages}
+                </span>
+              </span>
+            </div>
+
+            <Button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              size="lg"
+              className="px-8 py-3 disabled:opacity-40 disabled:cursor-not-allowed border-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+            >
+              Next
+              <svg
+                className="h-5 w-5 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Button>
+          </motion.div>
         )}
       </div>
 

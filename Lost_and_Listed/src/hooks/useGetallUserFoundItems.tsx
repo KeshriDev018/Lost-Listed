@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import {setuserfoundItems} from "@/redux/founditemSlice"
 
@@ -10,9 +10,7 @@ const useGetallUserFoundItems = () => {
 
   const fetchItems = async () => {
     try {
-      const res = await axios.get("/api/v1/found-item/user", {
-        withCredentials: true,
-      });
+      const res = await api.get("/found-item/user");
 
       if (res.data.success) {
         dispatch(setuserfoundItems(res.data.data));

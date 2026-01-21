@@ -152,7 +152,7 @@ const Navbar = () => {
           {/* Right side */}
           <div className="flex items-center gap-3">
             {/* Global Search Button */}
-            {(
+            {
               <Button
                 variant="ghost"
                 size="icon"
@@ -161,26 +161,53 @@ const Navbar = () => {
               >
                 <Search className="h-5 w-5" />
               </Button>
-            )}
+            }
 
             {/* Notifications */}
             {user && <NotificationBell />}
 
             {/* Dark Mode Toggle */}
-            <button
+            <motion.button
               onClick={() => setDarkMode(!darkMode)}
-              className="relative w-14 h-7 rounded-full flex items-center transition-colors duration-500 bg-gray-300 dark:bg-gray-700 shadow-inner"
+              className="relative w-16 h-8 rounded-full flex items-center transition-colors duration-300 bg-gradient-to-r from-blue-400 to-blue-500 dark:from-indigo-600 dark:to-purple-700 shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div
-                className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full shadow-md transform transition-transform duration-500 ${
-                  darkMode
-                    ? "translate-x-7 bg-gray-800"
-                    : "translate-x-0 bg-yellow-400"
-                }`}
-              />
-              <Sun className="w-4 h-4 absolute left-1 text-yellow-400 pointer-events-none" />
-              <Moon className="w-4 h-4 absolute right-1 text-gray-800 pointer-events-none" />
-            </button>
+              {/* Sliding toggle */}
+              <motion.div
+                className="absolute w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center"
+                animate={{
+                  x: darkMode ? 32 : 2,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 30,
+                }}
+              >
+                {darkMode ? (
+                  <Moon className="w-4 h-4 text-indigo-600" />
+                ) : (
+                  <Sun className="w-4 h-4 text-yellow-500" />
+                )}
+              </motion.div>
+
+              {/* Background icons */}
+              <motion.div
+                className="absolute left-2"
+                animate={{ opacity: darkMode ? 0 : 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Sun className="w-4 h-4 text-yellow-100" />
+              </motion.div>
+              <motion.div
+                className="absolute right-2"
+                animate={{ opacity: darkMode ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Moon className="w-4 h-4 text-purple-200" />
+              </motion.div>
+            </motion.button>
 
             {/* Avatar always visible */}
             {user ? (

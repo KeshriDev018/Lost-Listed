@@ -1,12 +1,25 @@
 import React, { useState } from "react";
-import { Plus, Heart, Share2 } from "lucide-react";
+import {
+  Plus,
+  Heart,
+  Share2,
+  Search,
+  Filter,
+  X,
+  MapPin,
+  Calendar,
+  Tag,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useDispatch, useSelector } from "react-redux";
 import useFetchAllLostItems from "@/hooks/usefetchallLostItems";
-import axios from "axios";
+import { api } from "@/config/api.ts";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import Footer from "@/components/Footer.tsx";
@@ -19,33 +32,30 @@ import {
   DialogFooter,
   DialogClose,
 } from "../components/ui/dialog.tsx";
-import {toast} from "sonner"
+import { toast } from "sonner";
 import { setLostItems } from "@/redux/lostitemSlice.ts";
 import { useEffect } from "react";
 import { useFilterLostItems } from "@/hooks/useFilterLostItems.tsx";
 import useFetchAllFoundItems from "@/hooks/usefetchallFoundItems.tsx";
 
-
-
-
 const LostItems = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
-  
-    const { refetchItems } = useFetchAllLostItems();
+  const { refetchItems } = useFetchAllLostItems();
 
+  const filterItems = useFilterLostItems();
 
-     const filterItems = useFilterLostItems();
-
-     const Spinner = () => (
-       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-     );
+  const Spinner = () => (
+    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+  );
 
   const dispatch = useDispatch();
-  const [Dialogactive,setDialogactive]= useState(false);
+  const [Dialogactive, setDialogactive] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const[item,setitem] = useState(null);
+  const [item, setitem] = useState(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -55,7 +65,6 @@ const LostItems = () => {
     location: "",
     image: null,
   });
-
 
   const [filters, setFilters] = useState({
     title: "",
@@ -70,15 +79,12 @@ const LostItems = () => {
     applyFilters();
   }, []);
 
-
   const handleFilterChange = (e: any) => {
     setFilters({
       ...filters,
       [e.target.name]: e.target.value,
     });
   };
-
-  
 
   const applyFilters = async () => {
     setIsLoading(true);
@@ -88,7 +94,7 @@ const LostItems = () => {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== "") params.append(key, value);
       });
-         
+
       const finalstring = params.toString();
       const res = await filterItems(finalstring);
 
@@ -131,23 +137,23 @@ const LostItems = () => {
 
   const handleSaveItem = (itemId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
+    setSavedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId],
     );
     toast.success(
-      savedItems.includes(itemId) 
-        ? "Removed from saved items" 
-        : "Saved to your collection"
+      savedItems.includes(itemId)
+        ? "Removed from saved items"
+        : "Saved to your collection",
     );
   };
-   
+
   // 🧾 Handle input change
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -159,49 +165,43 @@ const LostItems = () => {
     setForm({ ...form, image: file });
   };
 
-  
-    const cardClickHandler = async(id:any)=>{
-      try {
-        const res = await axios.get(`/api/v1/lost-item/${id}`,{withCredentials:true});
-        if(res.data.success){
-          setitem(res.data.data);
-          setDialogactive(true);
-        }
-        
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong");
+  const cardClickHandler = async (id: any) => {
+    try {
+      const res = await api.get(`/lost-item/${id}`, { withCredentials: true });
+      if (res.data.success) {
+        setitem(res.data.data);
+        setDialogactive(true);
       }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
+  };
 
+  const [foundloading, setfoundloading] = useState(false);
+  const claimHandler = async (id: any) => {
+    try {
+      setfoundloading(true);
+      const res = await api.put(
+        `/lost-item/found/${id}`,
+        {},
+        { withCredentials: true },
+      );
 
-   const [foundloading,setfoundloading]= useState(false);
-    const claimHandler = async(id:any)=>{
-     try {
-        setfoundloading(true);
-       const res = await axios.put(`/api/v1/lost-item/found/${id}`,{},{withCredentials:true});
+      if (res.data.success) {
+        refetchItems();
 
-      if (res.data.success){
-
-        refetchItems()
-
-        
         setitem(res.data.data);
 
         toast.success("Item marked found and reporter notified");
       }
-      
-     } catch (error) {
+    } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
-     }
-     finally{
-      
-      setfoundloading(false)
-     }
+    } finally {
+      setfoundloading(false);
     }
+  };
 
-  const [loadingReport,setloadingReport] = useState(false);
-  
-
+  const [loadingReport, setloadingReport] = useState(false);
 
   // 🚀 Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -213,20 +213,18 @@ const LostItems = () => {
         if (value) formData.append(key, value);
       });
 
-      const res = await axios.post("/api/v1/lost-item/create", formData, {
+      const res = await api.post("/lost-item/create", formData, {
         withCredentials: true,
       });
 
       if (res.data.success) {
-        await refetchItems()
+        await refetchItems();
         toast.success("Lost item reported successfully!");
         setShowAddModal(false);
-        
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Something went wrong");
-    }
-    finally{
+    } finally {
       setloadingReport(false);
       setForm({
         title: "",
@@ -239,184 +237,303 @@ const LostItems = () => {
     }
   };
 
+  const lostItems = useSelector((store: any) => store.lostitem.lostItems);
 
-const lostItems = useSelector((store: any) => store.lostitem.lostItems);
+  // Pagination calculations
+  const totalPages = Math.ceil((lostItems?.length || 0) / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = lostItems?.slice(startIndex, endIndex) || [];
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [lostItems]);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
-    <div className="min-h-screen bg-background bg-red-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div
-          className={`mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 
-              transition-all duration-700 ease-out transform 
-              opacity-0 translate-y-4`}
-          // Animate on mount
-          ref={(el) => {
-            if (el)
-              setTimeout(
-                () => el.classList.remove("opacity-0", "translate-y-4"),
-                50
-              );
-          }}
-        >
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-red-600">
-              <strong>Lost Items</strong>
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Report your lost items and help others find them.
-            </p>
-          </div>
-
-          <Button
-            onClick={() => setShowAddModal(true)}
-            className="gap-2 bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto transition-colors duration-300"
+      <div className="py-12">
+        {/* Professional Header with Gradient Accent */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-12 relative"
           >
-            <Plus className="h-4 w-4" />
-            Report Lost Item
-          </Button>
-        </div>
-        {/* Filters Section */}
-        <div className="mb-6">
-          {/* Toggle Button — Now visible on all screens */}
-          <div className="mb-4 flex justify-between items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-red-500 border-red-400 hover:bg-red-500 dark:bg-gray-800"
-              onClick={() => setShowFilters((prev) => !prev)}
-            >
-              {showFilters ? "Hide Filters" : "Show Filters"}
-            </Button>
-          </div>
+            {/* Background Gradient Accent */}
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-orange-500/10 to-red-500/10 rounded-3xl blur-3xl -z-10" />
 
-          {/* Filters Grid (collapsible on all screens) */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-red-100 dark:border-gray-700 p-8">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl shadow-lg">
+                      <AlertCircle className="h-7 w-7 text-white" />
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-red-600 via-red-500 to-orange-500 bg-clip-text text-transparent">
+                      Lost Items 
+                    </h1>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl leading-relaxed">
+                    Help reunite lost items with their owners. Report what
+                    you've lost or browse to help others find their belongings.
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {lostItems?.length || 0} active listings
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4" />
+                      {lostItems?.filter((item: any) => item.isFound).length ||
+                        0}{" "}
+                      resolved
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  size="lg"
+                  className="gap-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-base font-semibold rounded-xl"
+                >
+                  <Plus className="h-5 w-5" />
+                  Report Lost Item
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Professional Filters Section */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+          <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-3">
+                <Filter className="h-5 w-5 text-red-500" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Filter & Search
+                </h3>
+                {Object.values(filters).some((val) => val !== "") && (
+                  <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                    Active
+                  </Badge>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium"
+                onClick={() => setShowFilters((prev) => !prev)}
+              >
+                {showFilters ? (
+                  <>
+                    <X className="h-4 w-4 mr-2" /> Hide
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" /> Show Filters
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{
+                opacity: showFilters ? 1 : 0,
+                height: showFilters ? "auto" : 0,
+              }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pt-4">
+                {/* Title Input with Icon */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    name="title"
+                    placeholder="Search title..."
+                    onChange={handleFilterChange}
+                    value={filters.title}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-sm"
+                  />
+                </div>
+
+                {/* Location Input with Icon */}
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    name="location"
+                    placeholder="Location..."
+                    onChange={handleFilterChange}
+                    value={filters.location}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-sm"
+                  />
+                </div>
+
+                {/* Category Select with Icon */}
+                <div className="relative">
+                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
+                  <select
+                    name="category"
+                    onChange={handleFilterChange}
+                    value={filters.category}
+                    className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white appearance-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-sm cursor-pointer"
+                  >
+                    <option value="">All Categories</option>
+                    <option value="Electronics">📱 Electronics</option>
+                    <option value="Documents">📄 Documents</option>
+                    <option value="Clothing">👕 Clothing</option>
+                    <option value="Accessories">👜 Accessories</option>
+                    <option value="Other">📦 Other</option>
+                  </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Date From with Icon */}
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    name="dateFrom"
+                    onChange={handleFilterChange}
+                    value={filters.dateFrom}
+                    placeholder="From date"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-sm"
+                  />
+                </div>
+
+                {/* Date To with Icon */}
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    name="dateTo"
+                    onChange={handleFilterChange}
+                    value={filters.dateTo}
+                    placeholder="To date"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-sm"
+                  />
+                </div>
+
+                {/* Status Select */}
+                <div className="relative">
+                  <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
+                  <select
+                    name="isFound"
+                    onChange={handleFilterChange}
+                    value={filters.isFound}
+                    className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white appearance-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-sm cursor-pointer"
+                  >
+                    <option value="">All Status</option>
+                    <option value="true">✅ Found</option>
+                    <option value="false">❌ Not Found</option>
+                  </select>
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{
               opacity: showFilters ? 1 : 0,
               height: showFilters ? "auto" : 0,
             }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 overflow-hidden"
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="overflow-hidden"
           >
-            {/* Title Input */}
-            <input
-              name="title"
-              placeholder="Search Title"
-              onChange={handleFilterChange}
-              value={filters.title}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-300 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-
-            {/* Location Input */}
-            <input
-              name="location"
-              placeholder="Location"
-              onChange={handleFilterChange}
-              value={filters.location}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-300 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-
-            {/* Category Select */}
-            <div className="relative">
-              <select
-                name="category"
-                onChange={handleFilterChange}
-                value={filters.category}
-                className="w-full border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white appearance-none pr-8 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+              <Button
+                onClick={applyFilters}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-medium px-6 shadow-md hover:shadow-lg transition-all duration-300"
               >
-                <option value="">All Categories</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Documents">Documents</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Other">Other</option>
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300">
-                ▼
-              </span>
-            </div>
+                <Search className="h-4 w-4 mr-2" />
+                {isLoading ? "Searching..." : "Apply Filters"}
+              </Button>
 
-            {/* Date From */}
-            <input
-              type="date"
-              name="dateFrom"
-              onChange={handleFilterChange}
-              value={filters.dateFrom}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-
-            {/* Date To */}
-            <input
-              type="date"
-              name="dateTo"
-              onChange={handleFilterChange}
-              value={filters.dateTo}
-              className="border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-
-            {/* Is Found Select */}
-            <div className="relative">
-              <select
-                name="isFound"
-                onChange={handleFilterChange}
-                value={filters.isFound}
-                className="w-full border p-2 rounded text-sm bg-white dark:bg-gray-800 text-black dark:text-white appearance-none pr-8 transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  setFilters({
+                    title: "",
+                    category: "",
+                    location: "",
+                    dateFrom: "",
+                    dateTo: "",
+                    isFound: "",
+                  });
+                  const res = await filterItems("");
+                  if (res.data.success) dispatch(setLostItems(res.data.data));
+                }}
+                className="border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20 font-medium"
               >
-                <option value="">All</option>
-                <option value="true">Found</option>
-                <option value="false">Not Found</option>
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300">
-                ▼
-              </span>
+                <X className="h-4 w-4 mr-2" />
+                Clear All
+              </Button>
+
+              {Object.values(filters).some((val) => val !== "") && (
+                <span className="flex items-center text-sm text-gray-500 dark:text-gray-400 ml-2">
+                  <Filter className="h-4 w-4 mr-1" />
+                  {
+                    Object.values(filters).filter((val) => val !== "").length
+                  }{" "}
+                  filter(s) active
+                </span>
+              )}
             </div>
           </motion.div>
         </div>
-        {/* Filter Buttons — hidden when filters collapsed */}
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{
-            opacity: showFilters ? 1 : 0,
-            height: showFilters ? "auto" : 0,
-          }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className="mb-4 flex flex-wrap gap-2 overflow-hidden"
-        >
-          <Button
-            onClick={applyFilters}
-            className="bg-red-500 hover:bg-red-400 text-white w-full sm:w-auto transition-colors duration-300"
-          >
-            Apply Filters
-          </Button>
+      </div>
 
-          <Button
-            variant="secondary"
-            className="bg-red-500 text-white hover:bg-red-400 w-full sm:w-auto transition-colors duration-300"
-            onClick={async () => {
-              setFilters({
-                title: "",
-                category: "",
-                location: "",
-                dateFrom: "",
-                dateTo: "",
-                isFound: "",
-              });
-              const res = await filterItems("");
-              if (res.data.success) dispatch(setLostItems(res.data.data));
-            }}
-          >
-            Reset Filters
-          </Button>
-        </motion.div>
-
-        {/* Lost Items Grid */}
+      {/* Lost Items Grid */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <Card key={i} className="h-[380px] animate-pulse">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(itemsPerPage)].map((_, i) => (
+              <Card key={i} className="h-[400px] animate-pulse">
                 <CardContent className="p-4 sm:p-6">
                   <div className="w-full h-48 bg-gray-300 dark:bg-gray-700 rounded-lg mb-4"></div>
                   <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded mb-2"></div>
@@ -439,81 +556,113 @@ const lostItems = useSelector((store: any) => store.lostitem.lostItems);
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {lostItems?.map((item: any, index: number) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentItems?.map((item: any, index: number) => (
               <motion.div
                 key={item._id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
               >
                 <Card
-                  className="cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg h-[370px] flex flex-col relative group"
+                  className="cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-[400px] flex flex-col relative group overflow-hidden border-0 bg-white dark:bg-gray-800 shadow-lg"
                   onClick={() => cardClickHandler(item._id)}
                 >
+                  {/* Gradient Overlay on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none" />
+
+                  {/* Status Badge */}
                   <Badge
-                    className={`absolute bottom-3 right-3 z-10 ${
+                    className={`absolute top-3 left-3 z-20 font-semibold shadow-lg ${
                       item.isFound
-                        ? "bg-green-500 hover:bg-green-600 text-white"
-                        : "bg-red-500 hover:bg-red-600 text-white"
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0"
+                        : "bg-gradient-to-r from-red-500 to-orange-500 text-white border-0"
                     }`}
                   >
-                    {item.isFound ? "Found" : "Not Found"}
+                    {item.isFound ? (
+                      <>
+                        <CheckCircle2 className="h-3 w-3 mr-1" /> Found
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-3 w-3 mr-1" /> Not Found
+                      </>
+                    )}
                   </Badge>
 
-                  {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                  {/* Enhanced Action Buttons */}
+                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
+                      className="h-9 w-9 bg-white/95 hover:bg-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-600 dark:bg-gray-800/95 dark:hover:bg-gray-800"
                       onClick={(e) => handleSaveItem(item._id, e)}
                     >
                       <Heart
-                        className={`h-4 w-4 ${
+                        className={`h-4 w-4 transition-all ${
                           savedItems.includes(item._id)
-                            ? "fill-red-500 text-red-500"
-                            : "text-gray-600"
+                            ? "fill-red-500 text-red-500 scale-110"
+                            : "text-gray-600 dark:text-gray-300"
                         }`}
                       />
                     </Button>
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 bg-white/90 hover:bg-white shadow-lg"
+                      className="h-9 w-9 bg-white/95 hover:bg-white backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-600 dark:bg-gray-800/95 dark:hover:bg-gray-800"
                       onClick={(e) => handleShare(item, e)}
                     >
-                      <Share2 className="h-4 w-4 text-gray-600" />
+                      <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                     </Button>
                   </div>
 
-                  <CardContent className="p-4 sm:p-6 flex flex-col h-full">
-                    <img
-                      src={item.image?.url || "/placeholder-lost.png"}
-                      alt={item.title}
-                      className="w-full h-48 object-cover rounded-lg mb-4 transition-transform duration-300 hover:scale-105"
-                    />
-                    <div className="flex flex-col flex-grow">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-lg sm:text-xl font-semibold transition-colors duration-300 hover:text-blue-600 truncate flex-1">
+                  <CardContent className="p-0 flex flex-col h-full">
+                    {/* Image with Overlay */}
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={item.image?.url || "/placeholder-lost.png"}
+                        alt={item.title}
+                        className="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      {/* Image Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-5 flex flex-col flex-grow space-y-3">
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
                           {item.title}
                         </h3>
+
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>
+                            {formatDistanceToNow(new Date(item.createdAt), {
+                              addSuffix: true,
+                            })}
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        {formatDistanceToNow(new Date(item.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                      {/* <p
-                        className="text-gray-600 dark:text-gray-400 mb-2 text-sm line-clamp-2 flex-grow"
-                        title={item.description}
-                      >
-                        {item.description}
-                      </p> */}
-                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-3">
-                        <strong>📍 Lost at:</strong>{" "}
-                        {item.location || "Not specified"}
-                      </p>
+
+                      {/* Category Badge */}
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className="text-xs font-medium border-red-200 text-red-700 dark:border-red-800 dark:text-red-400"
+                        >
+                          <Tag className="h-3 w-3 mr-1" />
+                          {item.category}
+                        </Badge>
+                      </div>
+
+                      {/* Location */}
+                      <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300 mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <MapPin className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                        <span className="line-clamp-1 font-medium">
+                          {item.location || "Location not specified"}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -522,6 +671,75 @@ const lostItems = useSelector((store: any) => store.lostitem.lostItems);
           </div>
         )}
       </div>
+
+      {/* Professional Pagination */}
+      {!isLoading && lostItems?.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-12 flex justify-center items-center gap-4"
+        >
+          <Button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            variant="outline"
+            size="lg"
+            className="px-8 py-3 disabled:opacity-40 disabled:cursor-not-allowed border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+          >
+            <svg
+              className="h-5 w-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Previous
+          </Button>
+
+          <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Page{" "}
+              <span className="text-red-600 dark:text-red-400 text-lg mx-1">
+                {currentPage}
+              </span>{" "}
+              of{" "}
+              <span className="text-gray-900 dark:text-gray-100">
+                {totalPages}
+              </span>
+            </span>
+          </div>
+
+          <Button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            variant="outline"
+            size="lg"
+            className="px-8 py-3 disabled:opacity-40 disabled:cursor-not-allowed border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300 font-semibold shadow-sm hover:shadow-md"
+          >
+            Next
+            <svg
+              className="h-5 w-5 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Button>
+        </motion.div>
+      )}
 
       {/* Simple Modal */}
       {showAddModal && (

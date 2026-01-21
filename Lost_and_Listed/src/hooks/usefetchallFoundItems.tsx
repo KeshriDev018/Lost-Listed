@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setfoundItems } from "@/redux/founditemSlice";
 
@@ -14,9 +14,7 @@ const useFetchAllFoundItems = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get("/api/v1/found-item/get", {
-        withCredentials: true,
-      });
+      const res = await api.get("/found-item/get");
 
       if (res.data.success) {
         dispatch(setfoundItems(res.data.data));

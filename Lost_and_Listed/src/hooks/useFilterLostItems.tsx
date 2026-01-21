@@ -1,10 +1,8 @@
-import axios from "axios";
+import { api } from "@/config/api";
 
 export const useFilterLostItems = () => {
   const filterItems = async (queryString:string) => {
-    const res = await axios.get(`/api/v1/lost-item/filter?${queryString}`, {
-      withCredentials: true,
-    });
+    const res = await api.get(`/lost-item/filter?${queryString}`);
     return res; // only return actual items
   };
 

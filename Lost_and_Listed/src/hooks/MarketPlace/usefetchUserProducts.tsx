@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setuserProducts } from "@/redux/productSlice";
 
@@ -14,9 +14,7 @@ const useFetchAllUserProducts = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get("/api/v1/products/user", {
-        withCredentials: true,
-      });
+      const res = await api.get("/products/user");
 
       if (res.data.success) {
         dispatch(setuserProducts(res.data.products));

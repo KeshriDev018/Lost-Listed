@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import { api } from "@/config/api";
 import { useDispatch } from "react-redux";
 import { setLostItems } from "@/redux/lostitemSlice";
 
@@ -12,9 +12,7 @@ const useFetchAllLostItems = () => {
   const refetchItems = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/v1/lost-item/get", {
-        withCredentials: true,
-      });
+      const res = await api.get("/lost-item/get");
 
       console.log("Fetched lost items:", res.data);
 

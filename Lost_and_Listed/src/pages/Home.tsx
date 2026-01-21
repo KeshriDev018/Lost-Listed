@@ -6,9 +6,8 @@ import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import AutoSlider from "@/components/AutoSlider";
 import usefetchRecentActiivties from "@/hooks/Activty/usefetchRecentActiivties.tsx";
-import { Facebook, Instagram, Github, Linkedin } from "lucide-react";
+
 import GetStartedSection from "@/auth/getStarted";
-import { UseSelector } from "react-redux";
 
 import ItemLost from "@/components/LostItems/ItemLost";
 import ReportItem from "@/components/LostItems/ReportItem";
@@ -28,14 +27,13 @@ import Footer from "@/components/Footer";
 
 const Home = () => {
   usefetchRecentActiivties();
-  const user = useSelector((store:any)=>store.auth.user)
+  const user = useSelector((store: any) => store.auth.user);
   const activities = useSelector((store: any) => store.activity.activities);
   const lostItems = useSelector((store: any) => store.lostitem.lostItems);
   const foundItems = useSelector((store: any) => store.founditem.foundItems);
   const products = useSelector((store: any) => store.product.products);
 
-
-   const Tips = [
+  const Tips = [
     {
       id: 1,
       title: "Add Complete Details When Listing an Item",
@@ -59,53 +57,234 @@ const Home = () => {
     },
   ];
 
-
   return (
     <div className="min-h-screen bg-background text-gray-900 dark:text-gray-100 transition-colors duration-500">
       <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative h-[90vh] w-full flex items-center justify-center text-white bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="z-10 text-center px-4"
-        >
-          <motion.h1
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1 }}
-            className="text-5xl md:text-7xl font-extrabold leading-tight"
+      <section className="relative h-[90vh] w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-950 via-purple-900 to-pink-900 dark:from-gray-950 dark:via-purple-950 dark:to-indigo-950">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Gradient Orbs */}
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-20 left-10 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1,
+            }}
+            className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.4, 1],
+              opacity: [0.2, 0.3, 0.2],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2,
+            }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/20 rounded-full blur-3xl"
+          />
+
+          {/* Floating Particles */}
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              animate={{
+                y: [0, -30, 0],
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 5,
+              }}
+              className="absolute w-1 h-1 bg-white/40 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 mt-32 md:mt-0"
           >
-            Find, Buy & Recover <br />
-            <span className="text-yellow-300">Campus Essentials</span>
+            <Sparkles className="w-4 h-4 text-yellow-300" />
+            <span className="text-sm font-medium text-white">
+              Campus Community Platform
+            </span>
+            <span className="px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-400 text-black rounded-full">
+              NEW
+            </span>
+          </motion.div>
+
+          {/* Main Heading */}
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-tight mb-6 xs:mb-8"
+          >
+            <span className="inline-block bg-gradient-to-r from-white via-purple-100 to-white text-transparent bg-clip-text">
+              Find What’s Lost
+            </span>
+            <br />
+            <motion.span
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="inline-block bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 text-transparent bg-clip-text bg-[length:200%_auto]"
+            >
+              Give What Still Matters.
+            </motion.span>
           </motion.h1>
 
-          <p className="mt-6 text-lg md:text-xl text-white/90 max-w-xl mx-auto">
-            Lost something? Want affordable student deals? This campus community
-            has you.
-          </p>
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-base xs:text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-8 xs:mb-12 leading-relaxed"
+          >
+            Your all-in-one campus hub for{" "}
+            <span className="font-semibold text-yellow-300">
+              lost & found items
+            </span>
+            ,{" "}
+            <span className="font-semibold text-pink-300">
+              affordable deals
+            </span>
+            , and{" "}
+            <span className="font-semibold text-purple-300">
+              student exchanges
+            </span>
+          </motion.p>
 
-          <div className="mt-8 flex gap-4 justify-center flex-wrap">
-            <Button asChild size="lg" variant="secondary">
-              <Link to="/lost">Report Lost</Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link to="/found">Report Found</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              className="bg-yellow-400 hover:bg-yellow-500 text-black"
-            >
-              <Link to="/marketplace" className="flex items-center gap-2">
-                Marketplace <ArrowRight size={18} />
-              </Link>
-            </Button>
-          </div>
-        </motion.div>
-        <motion.div className="absolute inset-0 opacity-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center mb-10 sm:mb-16"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                asChild
+                size="lg"
+                className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white border-0 px-5 py-3 xs:px-8 xs:py-6 text-base xs:text-lg font-bold shadow-2xl shadow-red-500/30"
+              >
+                <Link to="/lost" className="flex items-center gap-2">
+                  <motion.span
+                    animate={{ rotate: [0, 10, 0, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    🔍
+                  </motion.span>
+                  Report Lost
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                asChild
+                size="lg"
+                className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 px-5 py-3 xs:px-8 xs:py-6 text-base xs:text-lg font-bold shadow-2xl shadow-green-500/30"
+              >
+                <Link to="/found" className="flex items-center gap-2">
+                  <motion.span
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    ✨
+                  </motion.span>
+                  Report Found
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                asChild
+                size="lg"
+                className="group relative overflow-hidden bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 hover:from-yellow-500 hover:via-orange-500 hover:to-pink-500 text-black border-0 px-5 py-3 xs:px-8 xs:py-6 text-base xs:text-lg font-bold shadow-2xl shadow-yellow-500/40"
+              >
+                <Link to="/marketplace" className="flex items-center gap-2">
+                  <motion.span
+                    animate={{ x: [0, 3, 0] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    🛒
+                  </motion.span>
+                  Marketplace
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-wrap gap-8 justify-center items-center mb-28 sm:mb-0"
+          >
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+              <span className="text-3xl font-bold text-white">
+                {lostItems?.length || 0}
+              </span>
+              <span className="text-sm text-white/70">Lost Items</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+              <span className="text-3xl font-bold text-white">
+                {foundItems?.length || 0}
+              </span>
+              <span className="text-sm text-white/70">Found Items</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
+              <span className="text-3xl font-bold text-white">
+                {products?.length || 0}
+              </span>
+              <span className="text-sm text-white/70">Products</span>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
       </section>
 
       {/* LIVE ACTIVITY TICKER */}
@@ -133,54 +312,117 @@ const Home = () => {
       {!user && <GetStartedSection />}
 
       {/* WHY SECTION */}
-      <section className="py-24 px-6 bg-gradient-to-b from-white to-purple-50  dark:from-gray-900 dark:to-purple-950 transition-colors duration-500">
-        <div className="max-w-6xl mx-auto text-center space-y-12">
+      <section className="relative py-24 px-6 bg-gradient-to-b from-white to-purple-50 dark:from-gray-900 dark:to-purple-950 transition-colors duration-500 overflow-hidden">
+        {/* Animated Background Elements */}
+        <motion.div
+          animate={{
+            rotate: [0, 360],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute top-0 right-0 w-96 h-96 bg-purple-300/10 dark:bg-purple-500/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            rotate: [360, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-300/10 dark:bg-indigo-500/10 rounded-full blur-3xl"
+        />
+
+        <div className="max-w-6xl mx-auto text-center space-y-12 relative z-10">
           {/* Title & Description */}
-          <div className="space-y-6 mb-20 ">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-purple-700 dark:text-purple-300">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="space-y-6 mb-20"
+          >
+            <motion.h2
+              initial={{ scale: 0.9, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent"
+            >
               Your Campus Exchange Hub
-            </h2>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+            >
               A trusted platform for students to{" "}
-              <span className="font-semibold">recover lost belongings</span>,{" "}
-              <span className="font-semibold">exchange essentials</span>, and{" "}
-              <span className="font-semibold">help each other</span>. Foster a
-              community where every item finds its way back 🤝
-            </p>
-          </div>
+              <span className="font-semibold text-purple-600 dark:text-purple-400">
+                recover lost belongings
+              </span>
+              ,{" "}
+              <span className="font-semibold text-pink-600 dark:text-pink-400">
+                exchange essentials
+              </span>
+              , and{" "}
+              <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                help each other
+              </span>
+              . Foster a community where every item finds its way back 🤝
+            </motion.p>
+          </motion.div>
 
           {/* LOST ITEMS SECTION */}
-          <section className=" py-18 px-6 transition-colors duration-500">
+          <section className="py-18 px-6 transition-colors duration-500">
             <div className="max-w-6xl mx-auto text-center space-y-12">
-              <h2 className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight text-red-600 dark:text-red-400">
+              <motion.h2
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-red-600 via-orange-500 to-red-600 bg-clip-text text-transparent"
+              >
                 Reporting a Lost Item
-              </h2>
+              </motion.h2>
               <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-12">
-                <div className="w-64 md:w-80">
-                  <ItemLost />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Lost Item
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <ReportItem />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Report Item
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <Searching />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Searching Item
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <ItemFound />
-
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Item Found & Returned
-                  </p>
-                </div>
+                {[
+                  { component: <ItemLost />, label: "Lost Item" },
+                  { component: <ReportItem />, label: "Report Item" },
+                  { component: <Searching />, label: "Searching Item" },
+                  { component: <ItemFound />, label: "Item Found & Returned" },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.15 }}
+                    viewport={{ once: true }}
+                    whileHover={{
+                      scale: 1.05,
+                      rotate: [0, -2, 2, 0],
+                      transition: { duration: 0.3 },
+                    }}
+                    className="w-64 md:w-80 p-4 rounded-2xl bg-gradient-to-br from-red-50/50 to-orange-50/50 dark:from-red-950/30 dark:to-orange-950/30 hover:shadow-2xl hover:shadow-red-200/50 dark:hover:shadow-red-900/30 transition-all duration-300 cursor-pointer"
+                  >
+                    {item.component}
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: i * 0.15 + 0.3 }}
+                      className="mt-4 text-gray-700 dark:text-gray-300 font-medium"
+                    >
+                      {item.label}
+                    </motion.p>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </section>
@@ -188,34 +430,51 @@ const Home = () => {
           {/* FOUND ITEMS SECTION */}
           <section className="py-20 px-6 transition-colors duration-500">
             <div className="max-w-6xl mx-auto text-center space-y-12">
-              <h2 className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight text-green-600 dark:text-green-400">
+              <motion.h2
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent"
+              >
                 Reporting a Found Item
-              </h2>
+              </motion.h2>
               <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-12">
-                <div className="w-64 md:w-80">
-                  <ItemFounded />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Found Item
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <FoundItemReport />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Report Found Item
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <Searchowner />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Searching Owner on Claims
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <Returnitem />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Return Item
-                  </p>
-                </div>
+                {[
+                  { component: <ItemFounded />, label: "Found Item" },
+                  {
+                    component: <FoundItemReport />,
+                    label: "Report Found Item",
+                  },
+                  {
+                    component: <Searchowner />,
+                    label: "Searching Owner on Claims",
+                  },
+                  { component: <Returnitem />, label: "Return Item" },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: i * 0.15 }}
+                    viewport={{ once: true }}
+                    whileHover={{
+                      y: -10,
+                      transition: { duration: 0.2 },
+                    }}
+                    className="w-64 md:w-80 p-4 rounded-2xl bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/30 hover:shadow-2xl hover:shadow-green-200/50 dark:hover:shadow-green-900/30 transition-all duration-300 cursor-pointer"
+                  >
+                    {item.component}
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: i * 0.15 + 0.3 }}
+                      className="mt-4 text-gray-700 dark:text-gray-300 font-medium"
+                    >
+                      {item.label}
+                    </motion.p>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </section>
@@ -223,34 +482,46 @@ const Home = () => {
           {/* MARKETPLACE SECTION */}
           <section className="py-18 px-6 transition-colors duration-500">
             <div className="max-w-6xl mx-auto text-center space-y-12">
-              <h2 className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight text-blue-600 dark:text-blue-400">
+              <motion.h2
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent"
+              >
                 Marketplace
-              </h2>
+              </motion.h2>
               <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-12">
-                <div className="w-64 md:w-80">
-                  <BuyItems />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Buy Items
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <SellItems />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Sell Items
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <SearchItems />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Search Items
-                  </p>
-                </div>
-                <div className="w-64 md:w-80">
-                  <ExchangeItems />
-                  <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                    Exchange Items
-                  </p>
-                </div>
+                {[
+                  { component: <BuyItems />, label: "Buy Items" },
+                  { component: <SellItems />, label: "Sell Items" },
+                  { component: <SearchItems />, label: "Search Items" },
+                  { component: <ExchangeItems />, label: "Exchange Items" },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, rotateY: 90 }}
+                    whileInView={{ opacity: 1, rotateY: 0 }}
+                    transition={{ duration: 0.6, delay: i * 0.15 }}
+                    viewport={{ once: true }}
+                    whileHover={{
+                      scale: 1.1,
+                      boxShadow: "0 20px 40px rgba(79, 70, 229, 0.3)",
+                      transition: { duration: 0.3 },
+                    }}
+                    className="w-64 md:w-80 p-4 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30 hover:shadow-2xl hover:shadow-blue-200/50 dark:hover:shadow-blue-900/30 transition-all duration-300 cursor-pointer"
+                  >
+                    {item.component}
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: i * 0.15 + 0.3 }}
+                      className="mt-4 text-gray-700 dark:text-gray-300 font-medium"
+                    >
+                      {item.label}
+                    </motion.p>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </section>
@@ -262,18 +533,48 @@ const Home = () => {
       <section className="py-24 bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
         {/* TRENDING DEALS */}
 
-        <div className="flex flex-col items-center text-center mb-28 px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center text-center mb-28 px-6"
+        >
           {/* Gradient Heading */}
-          <h2 className="relative flex items-center justify-center gap-2 text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text mb-6 tracking-tight leading-tight py-2">
-            <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />
+          <motion.h2
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="relative flex items-center justify-center gap-2 text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text mb-6 tracking-tight leading-tight py-2"
+          >
+            <motion.div
+              animate={{
+                rotate: [0, 360],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <Sparkles className="w-8 h-8 text-indigo-400" />
+            </motion.div>
             Trending Deals
-          </h2>
+          </motion.h2>
 
           {/* Subtext - balanced & breathable */}
-          <p className="text-gray-500 dark:text-gray-400 mb-14 text-base sm:text-lg leading-relaxed max-w-xl mx-auto">
-            Discover what’s catching everyone’s attention right now — premium
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="text-gray-500 dark:text-gray-400 mb-14 text-base sm:text-lg leading-relaxed max-w-xl mx-auto"
+          >
+            Discover what's catching everyone's attention right now — premium
             deals that are trending across the marketplace.
-          </p>
+          </motion.p>
 
           {/* Auto Slider */}
           <AutoSlider
@@ -285,25 +586,48 @@ const Home = () => {
           />
 
           {/* View All Link */}
-          <Link
-            to="/marketplace"
-            className="mt-10 inline-block text-sm font-medium text-indigo-500 hover:text-pink-500 transition-colors"
+          <motion.div
+            whileHover={{ scale: 1.1, x: 5 }}
+            transition={{ duration: 0.2 }}
           >
-            View All →
-          </Link>
-        </div>
+            <Link
+              to="/marketplace"
+              className="mt-10 inline-block text-sm font-medium text-indigo-500 hover:text-pink-500 transition-colors"
+            >
+              View All →
+            </Link>
+          </motion.div>
+        </motion.div>
 
         {/* LOST SECTION */}
-        <div className="flex flex-col items-center mb-28 px-6 text-center">
-          <h2 className="relative text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 text-transparent bg-clip-text mb-6 tracking-tight leading-tight py-2">
+        <motion.div
+          initial={{ opacity: 0, x: -60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center mb-28 px-6 text-center"
+        >
+          <motion.h2
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="relative text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 text-transparent bg-clip-text mb-6 tracking-tight leading-tight py-2"
+          >
             Recent Lost Items
-          </h2>
+          </motion.h2>
 
           {/* Description (clean, centered, with breathing room) */}
-          <p className="text-gray-500 dark:text-gray-400 mb-14 text-base sm:text-lg leading-relaxed max-w-xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="text-gray-500 dark:text-gray-400 mb-14 text-base sm:text-lg leading-relaxed max-w-xl mx-auto"
+          >
             Recently reported missing items — help bring them back to their
             owners.
-          </p>
+          </motion.p>
 
           <AutoSlider
             type="lost"
@@ -317,7 +641,7 @@ const Home = () => {
           >
             View All →
           </Link>
-        </div>
+        </motion.div>
 
         {/* FOUND SECTION */}
         <div className="flex flex-col items-center mt-28 px-6 text-center">
@@ -336,12 +660,17 @@ const Home = () => {
             getImageUrl={(item) => item?.image?.url}
           />
 
-          <Link
-            to="/found"
-            className="mt-10 inline-block text-sm font-medium text-teal-400 hover:text-cyan-400 transition-colors"
+          <motion.div
+            whileHover={{ scale: 1.1, x: 5 }}
+            transition={{ duration: 0.2 }}
           >
-            View All →
-          </Link>
+            <Link
+              to="/found"
+              className="mt-10 inline-block text-sm font-medium text-teal-400 hover:text-cyan-400 transition-colors"
+            >
+              View All →
+            </Link>
+          </motion.div>
         </div>
       </section>
 
@@ -557,17 +886,29 @@ const Home = () => {
 
       <section className="py-16 bg-gray-100 dark:bg-gray-800 transition-colors duration-500">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-8 text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: -30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-8 text-center"
+          >
             Campus Tips & News
-          </h2>
+          </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
             {Tips.map((tip, i) => (
               <motion.div
                 key={tip.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30, rotateX: -20 }}
+                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{ delay: i * 0.2, duration: 0.6 }}
-                className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer"
+                viewport={{ once: true }}
+                whileHover={{
+                  y: -10,
+                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
+                  transition: { duration: 0.3 },
+                }}
+                className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer border-2 border-transparent hover:border-purple-500/30"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl">{tip.icon}</span>
@@ -586,9 +927,15 @@ const Home = () => {
 
       <section className="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-10">
+          <motion.h2
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-10"
+          >
             Frequently Asked Questions
-          </h2>
+          </motion.h2>
           <div className="space-y-4">
             {[
               {
@@ -606,10 +953,16 @@ const Home = () => {
             ].map((faq, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: i * 0.2 }}
-                className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+                initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+                viewport={{ once: true }}
+                whileHover={{
+                  scale: 1.02,
+                  borderColor: "rgba(99, 102, 241, 0.5)",
+                  transition: { duration: 0.2 },
+                }}
+                className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer border-2 border-transparent"
               >
                 <h3 className="font-bold text-lg">{faq.q}</h3>
                 <p className="text-gray-600 dark:text-gray-200 mt-2">{faq.a}</p>
@@ -621,16 +974,28 @@ const Home = () => {
 
       <section className="py-16 bg-gray-100 dark:bg-gray-800 transition-colors duration-500">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-10">
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-10"
+          >
             Trusted By Campus Clubs
-          </h2>
+          </motion.h2>
           <div className="flex flex-wrap justify-center gap-8 items-center">
             {["Club A", "Club B", "Club C", "Club D"].map((c, i) => (
               <motion.div
                 key={i}
-                initial={{ scale: 0.8, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: i * 0.2 }}
+                initial={{ scale: 0.5, opacity: 0, rotateY: -90 }}
+                whileInView={{ scale: 1, opacity: 1, rotateY: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
+                viewport={{ once: true }}
+                whileHover={{
+                  scale: 1.15,
+                  rotate: [0, -5, 5, 0],
+                  transition: { duration: 0.3 },
+                }}
                 className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md hover:shadow-xl transition w-36"
               >
                 <span className="font-bold text-lg">{c}</span>
@@ -640,40 +1005,89 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-indigo-700 text-white">
-        <div className="max-w-3xl mx-auto px-6 text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-extrabold">Stay Updated!</h2>
-          <p className="text-lg text-white/90">
+      <section className="relative py-16 bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white overflow-hidden">
+        {/* Animated Background */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+        />
+        <div className="max-w-3xl mx-auto px-6 text-center space-y-6 relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: -30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-extrabold"
+          >
+            Stay Updated!
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-lg text-white/90"
+          >
             Subscribe to get the latest lost & found alerts and marketplace
             deals.
-          </p>
-          <form className="flex gap-2 flex-col sm:flex-row">
-            <input
+          </motion.p>
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="flex gap-2 flex-col sm:flex-row"
+          >
+            <motion.input
+              whileFocus={{ scale: 1.02 }}
               type="email"
               placeholder="Enter your email"
               className="p-3 rounded-lg flex-1 text-black"
             />
-            <Button className="bg-yellow-400 hover:bg-yellow-500 text-black">
-              Subscribe
-            </Button>
-          </form>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black w-full sm:w-auto">
+                Subscribe
+              </Button>
+            </motion.div>
+          </motion.form>
         </div>
       </section>
 
       {/* TESTIMONIALS */}
       <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-center text-3xl font-bold mb-8">
+          <motion.h2
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-8"
+          >
             What Our Students Say
-          </h2>
+          </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 40, rotateY: -30 }}
+                whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
                 transition={{ delay: i * 0.2, duration: 0.6 }}
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border hover:shadow-2xl transition"
+                viewport={{ once: true }}
+                whileHover={{
+                  y: -10,
+                  scale: 1.03,
+                  boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)",
+                  transition: { duration: 0.3 },
+                }}
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border hover:shadow-2xl transition border-transparent hover:border-purple-500/30"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl">
@@ -696,7 +1110,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <Footer/>
+      <Footer />
     </div>
   );
 };
