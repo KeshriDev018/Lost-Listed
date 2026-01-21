@@ -136,32 +136,23 @@ export const loginUser = async (req, res) => {
 
 };
 
-
 export const logoutUser = async (req, res) => {
   try {
-    
-    
     const { refreshToken } = req.cookies;
 
-    if (!refreshToken) {
-      return res.status(400).json({
-        message: "No refresh token found",
-        success: false,
-      });
+    // ✅ Logout must always succeed
+    if (refreshToken) {
+      const user = await User.findOne({ refreshToken });
+      if (user) {
+        user.refreshToken = null;
+        await user.save({ validateBeforeSave: false });
+      }
     }
 
-    // Find the user with this refresh token
-    const user = await User.findOne({ refreshToken });
-    if (user) {
-      user.refreshToken = null; // remove token from DB
-      await user.save({ validateBeforeSave: false });
-    }
-
-    // Clear the cookie from client
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      // secure: false, // ✅ false for localhost (use true only on HTTPS)
-      sameSite: "strict", 
+      secure: true,
+      sameSite: "none",
       path: "/",
     });
 
@@ -171,12 +162,13 @@ export const logoutUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      message: "Something went wrong while logging out",
-      success: false,
+    return res.status(200).json({
+      message: "Logged out",
+      success: true,
     });
   }
 };
+
 
 
 export const getUserProfile = async (req, res) => {
