@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/redux/authSlice";
-import axios from "axios";
+import { api } from "@/config/api";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -55,7 +55,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`/api/v1/user/logout`, {}, { withCredentials: true });
+      await api.post(`/user/logout`);
       dispatch(setUser(null));
       navigate("/");
       toast.success("Logged out successfully");

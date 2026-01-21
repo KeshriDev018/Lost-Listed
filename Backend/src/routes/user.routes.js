@@ -7,7 +7,7 @@ const router =express.Router();
 
 router.route("/register").post(singleUpload,registerUser);
 router.route("/login").post(loginUser);
-router.route("/logout").post(verifyJWT,logoutUser);
+router.route("/logout").post(logoutUser);
 router.route("/getProfile").get(verifyJWT,getUserProfile);
 router.route("/update-profile").put(verifyJWT,updateUserInfo)
 router.route("/update-avatar").put(verifyJWT,singleUpload,updateUserAvatar)
